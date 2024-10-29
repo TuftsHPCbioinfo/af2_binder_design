@@ -11,14 +11,16 @@ ENV PATH=/opt/dl_binder_design/af2_initial_guess:$PATH
 
 # Install git
 RUN apt-get update && apt-get install -y git \
-    && apt-get clean && \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Download github repo
-git clone https://github.com/nrbennet/dl_binder_design
-chmod +x /opt/dl_binder_design/af2_initial_guess/*.py
+RUN git clone https://github.com/nrbennet/dl_binder_design \
+	&& chmod +x /opt/dl_binder_design/af2_initial_guess/*.py
 
 # Install the required conda channels and dependencies into the base environment
+RUN conda config --add channels https://conda.graylab.jhu.edu
+
 RUN conda install -y \
     biopython \
     ml-collections \
