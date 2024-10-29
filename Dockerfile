@@ -7,7 +7,7 @@ LABEL maintainer="Yucheng Zhang <Yucheng.Zhang@tufts.edu>"
 WORKDIR /opt
 
 # Set environment variables
-ENV PATH=/opt/dl_binder_design/af2_initial_guess:$PATH
+ENV PATH=/opt/miniforge/envs/af2_binder_design/bin:/opt/dl_binder_design/af2_initial_guess:$PATH
 
 # Install git
 RUN apt-get update && apt-get install -y git \
@@ -17,26 +17,14 @@ RUN apt-get update && apt-get install -y git \
 # Download github repo
 RUN git clone https://github.com/nrbennet/dl_binder_design \
 	&& chmod +x /opt/dl_binder_design/af2_initial_guess/*.py
-
+ 
 # Install the required conda channels and dependencies into the base environment
-RUN conda config --add channels https://conda.graylab.jhu.edu
+RUN conda config --add channels https://conda.graylab.jhu.edu \
+    && conda config --set channel_priority flexible
 
-RUN conda install -y \
-    biopython \
-    ml-collections \
-    ml_dtypes \
-    tensorflow \
-    pyrosetta \
-    mock \
-    -c pytorch \
-    -c nvidia \
-    -c conda-forge \
-    -c defaults && \
-    conda clean -afy
+WORKDIR /opt/dl_binder_design/include 
 
-# Install pip-based packages into the base environment, including JAX with CUDA support
-RUN pip install --find-links https://storage.googleapis.com/jax-releases/jax_cuda_releases.html \
-    "jax[cuda12_pip]==0.4.20" jaxlib dm-haiku dm-tree
+RUN conda env create -f af2_binder_design.yml
 
 # Clean up unnecessary files
 RUN conda clean --all --yes && \
